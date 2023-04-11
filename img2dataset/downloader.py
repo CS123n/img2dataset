@@ -34,15 +34,19 @@ def is_disallowed(headers, user_agent_token, disallowed_header_directives):
     return False
 
 
-def download_image(row, timeout, user_agent_token, disallowed_header_directives):
+def download_image(row, timeout, user_agent_token, disallowed_header_directives, r):
     """Download an image with urllib"""
     key, url = row
     img_stream = None
-    user_agent_string = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0"
-    if user_agent_token:
-        user_agent_string += f" (compatible; {user_agent_token}; +https://github.com/rom1504/img2dataset)"
+    user_agent_string = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) " \
+                        "Chrome/23.0.1271.64 Safari/537.11"
+    proxy_host = '127.0.0.1:10809'
+    # if user_agent_token:
+    #    user_agent_string += f" (compatible; {user_agent_token}; +https://github.com/rom1504/img2dataset)"
     try:
         request = urllib.request.Request(url, data=None, headers={"User-Agent": user_agent_string})
+        if r == 1:
+            request.set_proxy(proxy_host, 'http')
         with urllib.request.urlopen(request, timeout=timeout) as r:
             if disallowed_header_directives and is_disallowed(
                 r.headers,
@@ -59,8 +63,8 @@ def download_image(row, timeout, user_agent_token, disallowed_header_directives)
 
 
 def download_image_with_retry(row, timeout, retries, user_agent_token, disallowed_header_directives):
-    for _ in range(retries + 1):
-        key, img_stream, err = download_image(row, timeout, user_agent_token, disallowed_header_directives)
+    for r in range(retries + 1):
+        key, img_stream, err = download_image(row, timeout, user_agent_token, disallowed_header_directives, r)
         if img_stream is not None:
             return key, img_stream, err
     return key, None, err

@@ -40,11 +40,19 @@ def download_image(row, timeout, user_agent_token, disallowed_header_directives,
     img_stream = None
     user_agent_string = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) " \
                         "Chrome/23.0.1271.64 Safari/537.11"
+    headers = {
+        "User-Agent": user_agent_string,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Charset": "ISO-8859-1,utf-8;q=0.7,*;q=0.3",
+        "Accept-Encoding": "none",
+        "Accept-Language": "en-US,en;q=0.8",
+        "Connection": "keep-alive",
+    }
     proxy_host = '127.0.0.1:10809'
     # if user_agent_token:
     #    user_agent_string += f" (compatible; {user_agent_token}; +https://github.com/rom1504/img2dataset)"
     try:
-        request = urllib.request.Request(url, data=None, headers={"User-Agent": user_agent_string})
+        request = urllib.request.Request(url, data=None, headers=headers)
         if r == 1:
             request.set_proxy(proxy_host, 'http')
         with urllib.request.urlopen(request, timeout=timeout) as r:
